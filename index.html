@@ -259,11 +259,26 @@
           const pinMatch = fullAddress.match(/\b\d{6}\b/);
           const pin = pinMatch ? pinMatch[0] : "";
 
+          // --- Distribute address evenly into 3 lines ---
+          let addr1 = "", addr2 = "", addr3 = "";
+          if (fullAddress) {
+            const words = fullAddress.split(/\s+/).filter(w => w);
+            const n = words.length;
+            const size1 = Math.ceil(n / 3);
+            const size2 = Math.ceil((n - size1) / 2);
+
+            addr1 = words.slice(0, size1).join(" ");
+            addr2 = words.slice(size1, size1 + size2).join(" ");
+            addr3 = words.slice(size1 + size2).join(" ");
+          }
+
           finalData.push({
             "Name": companyName,
             "Under": "Sundry Debtors",
             "Mailing Name": companyName,
-            "Address": fullAddress,
+            "Address line 1": addr1,
+            "Address line 2": addr2,
+            "Address line 3": addr3,
             "State": stateName,
             "Country": "India",
             "PIN Code": pin,
@@ -290,14 +305,16 @@
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "Sundry Debtors");
 
+      // Updated widths: The single address width of 50 was replaced with three 30-character widths
       const colWidths = [
-        { wch: 30 }, { wch: 20 }, { wch: 30 }, { wch: 50 },
-        { wch: 20 }, { wch: 15 }, { wch: 10 }, { wch: 15 },
+        { wch: 30 }, { wch: 20 }, { wch: 30 },
+        { wch: 30 }, { wch: 30 }, { wch: 30 }, // Address 1, 2, and 3
+        { wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 20 },
         { wch: 20 }, { wch: 15 }
       ];
       worksheet['!cols'] = colWidths;
 
-      XLSX.writeFile(workbook, "Tally_Import_Debtors.xlsx");
+      XLSX.writeFile(workbook, "Tally_Debtors_Format.xlsx");
     }
   </script>
 
